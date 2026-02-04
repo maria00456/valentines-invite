@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine's Invitation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Parisienne&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #200010 0%, #000000 80%);
+    overflow: hidden;
+    color: #ffe8e0;
+    font-family: "Playfair Display", serif;
+}
+
+.card {
+    text-align: center;
+    padding: 65px 95px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,80,120,0.15);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 35px 120px rgba(0,0,0,0.85);
+    position: relative;
+    z-index: 2;
+}
+
+h1 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 40px;
+    color: #ff4d85; /* πιο hot pink */
+}
+
+.buttons {
+    position: relative;
+    height: 60px;
+    width: 300px;
+    margin: 0 auto;
+}
+
+button {
+    padding: 13px 38px;
+    font-size: 1rem;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    font-family: "Playfair Display", serif;
+}
+
+#yesBtn {
+    background: linear-gradient(135deg, #ff5a90, #ff1f5c); /* hot pink gradient */
+    color: #111;
+    left: 0;
+    top: 0;
+    box-shadow: 0 12px 35px rgba(255,31,92,0.6);
+    animation: pulse 1.6s infinite;
+}
+
+@keyframes pulse {
+    0%,100% { transform: scale(1); box-shadow: 0 12px 35px rgba(255,31,92,0.6); }
+    50% { transform: scale(1.05); box-shadow: 0 20px 50px rgba(255,31,92,0.8); }
+}
+
+#noBtn {
+    background: transparent;
+    color: #ff99b3;
+    border: 1px solid rgba(255,153,179,0.25);
+    left: 170px;
+    top: 0;
+    backdrop-filter: blur(4px);
+}
+
+/* hearts */
+.heart {
+    position: absolute;
+    color: rgba(255,90,144,0.35); /* πιο hot pink */
+    font-size: 12px;
+    animation: float 5s linear infinite, sway 1.8s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes float {
+    from { transform: translateY(var(--startY)) scale(0.8); opacity:0.7; }
+    to { transform: translateY(-15vh) scale(1.5); opacity:1; }
+}
+
+@keyframes sway {
+    from { transform: translateX(0) rotate(0deg); }
+    to { transform: translateX(12px) rotate(15deg); }
+}
+
+/* Prague message */
+.prague-wrapper {
+    text-align: center;
+    animation: fadeIn 1.4s ease forwards;
+}
+
+.prague-line {
+    width: 140px;
+    height: 2px;
+    margin: 0 auto 18px;
+    background: linear-gradient(90deg, transparent, #ff5a90, transparent); /* hot gradient */
+}
+
+.prague-text {
+    font-family: "Parisienne", cursive;
+    font-size: 2rem;
+    color: #ff4d85; /* hot pink */
+    letter-spacing: 0.7px;
+    text-shadow: 0 0 25px rgba(255,90,144,0.5);
+}
+
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 26px;
+    background: #ff4d85;
+    margin-left: 4px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+    <h1>Will you be my Valentine?</h1>
+    <div class="buttons">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+    </div>
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+let targetX = 170;
+let currentX = 170;
+
+function animateNoButton(){
+    currentX += (targetX-currentX)*0.07;
+    noBtn.style.left = currentX + "px";
+    requestAnimationFrame(animateNoButton);
+}
+animateNoButton();
+
+document.addEventListener("mousemove",(e)=>{
+    const rect=noBtn.getBoundingClientRect();
+    const dist=Math.abs(e.clientX-rect.left);
+    if(dist<120){
+        const direction=e.clientX<rect.left?1:-1;
+        targetX+=direction*80;
+        targetX=Math.max(20,Math.min(240,targetX));
+    }
+});
+
+// typing kinky message after Yes
+document.getElementById("yesBtn").addEventListener("click",()=>{
+    document.body.innerHTML=`
+        <div class="prague-wrapper">
+            <div class="prague-line"></div>
+            <div class="prague-text" id="typeText"></div><span class="cursor"></span>
+        </div>
+    `;
+    const text="Meet me at Prague 9pm… come and tease me baby;)";
+    let i=0;
+    const interval=setInterval(()=>{
+        document.getElementById("typeText").innerHTML+=text[i];
+        i++;
+        if(i>=text.length) clearInterval(interval);
+    },50);
+});
+
+// hearts
+function createHeart(initial=false){
+    const heart=document.createElement("div");
+    heart.className="heart";
+    heart.innerHTML="♥";
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=9+Math.random()*12+"px";
+    if(initial){
+        heart.style.setProperty('--startY', `${20 + Math.random()*35}vh`);
+    } else {
+        heart.style.setProperty('--startY','100vh');
+    }
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),13000);
+}
+
+// hearts from start
+for(let i=0;i<25;i++){
+    setTimeout(()=>createHeart(true), i*120);
+}
+
+setInterval(()=>createHeart(false),550);
+
+// subtle sway with cursor
+document.addEventListener("mousemove",(e)=>{
+    document.querySelectorAll(".heart").forEach(h=>{
+        const offset = 5*Math.sin(Date.now()/300);
+        h.style.transform = `translate(${offset}px, ${parseFloat(getComputedStyle(h).top||0)}px)`;
+    });
+});
+</script>
+
+</body>
+</html>
